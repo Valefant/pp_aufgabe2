@@ -1,3 +1,9 @@
+% Listenoperationen:
+contains(X, [X|_]).
+contains(X, [_|Tail]):-contains(X, Tail).
+
+not_intersect(L1, L2):- \+(contains(E, L1), contains(E, L2)).
+
 % 1. Aufgabe
 unartig(susi).
 unartig(fridolin).
@@ -37,7 +43,8 @@ wunschwert([Head|Tail], Wert):-wunschwert(Tail, Res), wert(Head, Preis), Wert is
 
 % 5. Aufgabe
 wunschliste_bereinigen([], []).
-wunschliste_bereinigen([Head|Tail], BereinigteListe):-wunschliste_bereinigen(Tail, Res), \+contains(Head, Tail).
+wunschliste_bereinigen([Head|Tail], BereinigteListe):-wunschliste_bereinigen(Tail, BereinigteListe), contains(Head, Tail).
+wunschliste_bereinigen([Head|Tail], [Head|Tail2]):-wunschliste_bereinigen(Tail, Tail2), \+contains(Head, Tail).
 
 % 6. Aufgabe:
 preisgrenze(susi, 100).
@@ -48,13 +55,9 @@ preisgrenze(britta, 200).
 preisgrenze(klaus, 300).
 preisgrenze(sina, 300).
 
-moegliche_geschenke(Kind, Geschenkliste):-wunschwert(Geschenkliste, Wert), preisgrenze(Kind, Grenze), Wert =< Grenze.
+moegliche_geschenke(Kind, Geschenkliste):-wunschzettel(Kind, Zettel), test(Kind, Geschenkliste, Zettel).
+test(Kind, Geschenkliste, [Head|Tail]):-wunschwert([Head], Wert), preisgrenze(Kind, Grenze), test(Kind, Geschenkliste, Tail), Wert =< Grenze, append([], Head, Geschenkliste).
+test(Kind, [], []).
 
 % 7. Aufgabe + Zeichnung:
-einzigartige_geschenke(Kind1, Geschenkliste1, Kind2, Geschenkliste2):-wunschzettel(Kind1, Wunschzettel1), wunschzettel(Kind2, Wunschzettel2).
-einzigartige_geschenke(Kind1, [Head|Tail], Kind2, Geschenkliste2):-einzigartige_geschenke(Kind1, Tail, Kind2, Geschenkliste2), \+contains(Head, Geschenkliste).
-einzigartige_geschenke(Kind1, [], Kind2, Geschenkliste2).
-
-% Listenoperationen:
-contains(X, [X|_]).
-contains(X, [_|Tail]):-contains(X, Tail).
+einzigartige_geschenke(Kind1, Geschenkliste1, Kind2, Geschenkliste2):-moegliche_geschenke(Kind1, Geschenkliste1), moegliche_geschenke(Kind2, Geschenkliste2), not_intersect(Geschenkliste1, Geschenkliste2).
